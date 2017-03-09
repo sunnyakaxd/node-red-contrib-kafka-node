@@ -65,14 +65,12 @@ function KafkaBatchRunner(node, options, topics) {
     });
   }
   consumerGroup.on('message', function(msg) {
-    console.log('got msg');
+    //console.log('got msg');
     var myVersion = versionDict.__cur;
     var curvDict = versionDict[myVersion] = (versionDict[myVersion] || {
       list: new LinkedList(),
     });
-    curvDict.list.add({
-      msg: msg,
-    });
+    curvDict.list.add(msg);
     //console.log('calling pause');
     consumerGroup.pause();
     //console.log('calling run');
