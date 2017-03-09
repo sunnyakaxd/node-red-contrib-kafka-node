@@ -56,6 +56,8 @@ Topic(s) = "topic1, topic2, topic3"
             zkquorum:{value:"", required: true},
             topics: {value:"", required: true},
             groupId:{value:"", required: true},
+//            consumerTypeHighLevel:{checked: true},
+//            consumerTypeConsumerGroup:{checked: false}
             debug: {value:""},
             autoCommit:{value:true, required: true}
         },
@@ -73,15 +75,21 @@ Topic(s) = "topic1, topic2, topic3"
         <label for="node-input-zkquorum"><i class="icon-tag"></i>ZK Quorum</label>
         <input type="text" id="node-input-zkquorum" placeholder="ZK Quorum">
     </div>
-
     <div class="form-row">
         <label for="node-input-topics"><i class="icon-tag"></i>Topic(s)</label>
         <input type="text" id="node-input-topics" placeholder="Topic">
     </div>
-
-      <div class="form-row">
+    <div class="form-row">
         <label for="node-input-groupId"><i class="icon-tag"></i>GroupId</label>
         <input type="text" id="node-input-groupId" placeholder="GroupId">
+    </div>
+    <div class="form-row">
+        <label for="node-input-consumerTypeHighLevel"><i class="icon-tag"></i>HighLevelConsumer</label>
+        <input type="radio" name="consumerType" id="node-input-consumerTypeHighLevel" placeholder="consumerTypeHighLevel" checked>
+    </div>
+    <div class="form-row">
+        <label for="node-input-consumerTypeConsumerGroup"><i class="icon-tag"></i>ConsumerGroup</label>
+        <input type="radio" name="consumerType" id="node-input-consumerTypeConsumerGroup" placeholder="consumerTypeConsumerGroup">
     </div>
       <div class="form-row">
         <label for="node-input-autoCommit"><i class="icon-tag"></i>Auto Commit</label>
