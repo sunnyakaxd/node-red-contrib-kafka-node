@@ -29,7 +29,7 @@ LinkedList.prototype.add = function(data) {
   }
   this.length++;
 };
-function KafkaBatchRunner(node, options, topics) {
+function KafkaBatchRunner(node, options, topics, config) {
   var consumerGroup = this.consumerGroup = new ConsumerGroup(options, topics);
   var versionDict = {};
   versionDict.__cur = 0;
@@ -58,14 +58,19 @@ function KafkaBatchRunner(node, options, topics) {
         process.exit(1);
       }
       delete versionDict[thisRun];
-      //console.log('Resuming ', consumerGroup + '');
-      consumerGroup.commit();
+      config.debug && console.log('Resuming ', consumerGroup + '');
+      consumerGroup.commit(true, function(err, data) {
+        if (err) {
+          config.debug && console.log('Commit failed, purging core-svcs');
+          process.exit(1);
+        }
+        config.debug && console.log('Batch commit successfull');
+      });
       consumerGroup.resume();
-      //console.log('Commited and Resumed');
     });
   }
   consumerGroup.on('message', function(msg) {
-    //console.log('got msg');
+    config.debug && console.log('got msg');
     var myVersion = versionDict.__cur;
     var curvDict = versionDict[myVersion] = (versionDict[myVersion] || {
       list: new LinkedList(),

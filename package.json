@@ -1,24 +1,94 @@
 {
-    "name"         : "node-red-contrib-kafka-node",
-    "version"      : "0.1.7",
-    "description"  : "Node-RED nodes of HighLevel Kafka Producer and Consumer",
-    "dependencies" : {
-        "kafka-node": ">=0.3.2"
-    },
-    "repository" : {
-        "type" : "git",
-        "url"  : "https://github.com/fwang7/node-red-contrib-kafka-node.git"
-    },
-    "license"  : "Apache",
-    "keywords" : [ "node-red", "kafka", "kafka producer", "kafka consumer","nodered", "nodered kafka" ],
-    "node-red" : {
-        "nodes" : {
-            "kafka" : "kafka.js"
+  "_args": [
+    [
+      {
+        "raw": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+        "spec": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+        "type": "hosted",
+        "hosted": {
+          "type": "github",
+          "ssh": "git@github.com:sunnyakaxd/node-red-contrib-kafka-node.git",
+          "sshUrl": "git+ssh://git@github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+          "httpsUrl": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+          "gitUrl": "git://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+          "shortcut": "github:sunnyakaxd/node-red-contrib-kafka-node",
+          "directUrl": "https://raw.githubusercontent.com/sunnyakaxd/node-red-contrib-kafka-node/master/package.json"
         }
-    },
-    "author" : {
-        "name" : "Feng Wang",
-        "email": "desperado.wf@gmail.com"
+      },
+      "f:\\projects\\node\\er-core-services"
+    ]
+  ],
+  "_from": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+  "_id": "node-red-contrib-kafka-node@0.1.7",
+  "_inCache": true,
+  "_location": "/node-red-contrib-kafka-node",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+    "spec": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+    "type": "hosted",
+    "hosted": {
+      "type": "github",
+      "ssh": "git@github.com:sunnyakaxd/node-red-contrib-kafka-node.git",
+      "sshUrl": "git+ssh://git@github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+      "httpsUrl": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+      "gitUrl": "git://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+      "shortcut": "github:sunnyakaxd/node-red-contrib-kafka-node",
+      "directUrl": "https://raw.githubusercontent.com/sunnyakaxd/node-red-contrib-kafka-node/master/package.json"
     }
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git#95782ee4a651bbadd1e1ee2f12f4ccc1f448bee3",
+  "_shasum": "de353ac5a269bbe4a99aeeabbf09ac03f9e37f70",
+  "_shrinkwrap": null,
+  "_spec": "git+https://github.com/sunnyakaxd/node-red-contrib-kafka-node.git",
+  "_where": "f:\\projects\\node\\er-core-services",
+  "author": {
+    "name": "Feng Wang",
+    "email": "desperado.wf@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/fwang7/node-red-contrib-kafka-node/issues"
+  },
+  "dependencies": {
+    "kafka-node": ">=0.3.2"
+  },
+  "description": "Node-RED nodes of HighLevel Kafka Producer and Consumer",
+  "devDependencies": {},
+  "gitHead": "95782ee4a651bbadd1e1ee2f12f4ccc1f448bee3",
+  "homepage": "https://github.com/fwang7/node-red-contrib-kafka-node#readme",
+  "keywords": [
+    "node-red",
+    "kafka",
+    "kafka producer",
+    "kafka consumer",
+    "nodered",
+    "nodered kafka"
+  ],
+  "license": "Apache",
+  "name": "node-red-contrib-kafka-node",
+  "node-red": {
+    "nodes": {
+      "kafka": "kafka.js"
+    }
+  },
+  "optionalDependencies": {},
+  "readme": "# Kafka Node\r\nKafka node can produce/consume the mesasges to/from kafka cluster along with topic(s) on [NodeRED](http://nodered.org).\r\n\r\n\r\n## Install\r\n\r\nInstall from [npm](http://npmjs.org)\r\n```\r\nnpm install -g node-red-contrib-kafka-node\r\n```\r\n\r\n## Prerequisites\r\n * Node-RED platform. (see [Node-RED](http://nodered.org/docs/getting-started/installation.html))\r\n * Kafka cluster (see [Kafka](http://kafka.apache.org/documentation.html#gettingStarted)). \r\n * Some topics (see [How to create a topic](http://kafka.apache.org/documentation.html#quickstart))\r\n\r\n## Usage\r\n##### Producer Node\r\n\r\n![Alt text](https://github.com/fwang7/node-red-contrib-kafka-node/blob/screenshot/imgs/producer.jpg?raw=true \"Producer Example\")\r\n\r\n###### Parameters:\r\n - ZkQuarum - <i>The ZooKeeper quorum of Kafka cluster.\r\n - Topics - <i>The topic(s) of message to produce.\r\n\r\n##### Consumer Node\r\n\r\n![Alt text](https://github.com/fwang7/node-red-contrib-kafka-node/blob/screenshot/imgs/consumer.jpg?raw=true \"Consumer Example\")\r\n\r\n###### Parameters:\r\n - ZkQuarum - <i>The ZooKeeper quorum of Kafka cluster.\r\n - Topics - <i>The topic(s) of message to produce.\r\n - GroupId - <i> The group ID.\r\n> Group ID is a string that uniquely identifies the group of consumer processes to which this consumer belongs. By setting the same group id multiple processes indicate that they are all part of the same consumer group.\r\n\r\n\r\n## Version\r\n0.1.5\r\n\r\n## Tech\r\n * [Kafka](http://kafka.apache.org/) - Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.\r\n * [Zookeeper](https://zookeeper.apache.org/) - ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.\r\n * [Kafka-Node](https://www.npmjs.com/package/kafka-node) - Kafka-node is a Node.js client with Zookeeper integration for Apache Kafka 0.8.1 and later. \r\n\r\n\r\n## Authors\r\n* Feng Wang - [desperado.wf@gmail.com](mailto:desperado.wf@gmail.com)\r\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fwang7/node-red-contrib-kafka-node.git"
+  },
+  "version": "0.1.7"
 }
-
