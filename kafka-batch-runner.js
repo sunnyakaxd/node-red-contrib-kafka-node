@@ -58,10 +58,10 @@ function KafkaBatchRunner(node, options, topics) {
         process.exit(1);
       }
       delete versionDict[thisRun];
-      console.log('Resuming ', consumerGroup + '');
+      //console.log('Resuming ', consumerGroup + '');
       consumerGroup.commit();
       consumerGroup.resume();
-      console.log('Commited and Resumed');
+      //console.log('Commited and Resumed');
     });
   }
   consumerGroup.on('message', function(msg) {
@@ -73,9 +73,9 @@ function KafkaBatchRunner(node, options, topics) {
     curvDict.list.add({
       msg: msg,
     });
-    console.log('calling pause');
+    //console.log('calling pause');
     consumerGroup.pause();
-    console.log('calling run');
+    //console.log('calling run');
     process.nextTick(run);
   });
 }
