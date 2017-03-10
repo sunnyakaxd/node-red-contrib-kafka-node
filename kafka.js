@@ -156,7 +156,7 @@ module.exports = function (RED) {
           migrateHLC: false,    // for details please see Migration section below
           fetchMaxWaitMs: 100,
           fetchMinBytes: 1,
-          fetchMaxBytes: 2048,
+          fetchMaxBytes: 10240,
         };
         const kafkaBatchRunner = require('./kafka-batch-runner');
         kafkaBatchRunner(node, options, cgTopics, {
