@@ -56,8 +56,8 @@ Topic(s) = "topic1, topic2, topic3"
             zkquorum:{value:"", required: true},
             topics: {value:"", required: true},
             groupId:{value:"", required: true},
-//            consumerTypeHighLevel:{checked: true},
-//            consumerTypeConsumerGroup:{checked: false}
+            consumerType:{value: "ConsumerGroup", required: true},
+            fetchMaxBytes: {value: 1048576, required: true},
             debug: {value:""},
             autoCommit:{value:true, required: true}
         },
@@ -84,12 +84,15 @@ Topic(s) = "topic1, topic2, topic3"
         <input type="text" id="node-input-groupId" placeholder="GroupId">
     </div>
     <div class="form-row">
-        <label for="node-input-consumerTypeHighLevel"><i class="icon-tag"></i>HighLevelConsumer</label>
-        <input type="radio" name="consumerType" id="node-input-consumerTypeHighLevel" placeholder="consumerTypeHighLevel" checked>
+        <label for="node-input-consumerType"><i class="icon-tag"></i>Consumer Type</label>
+        <select id="node-input-method">
+           <option value="ConsumerGroup">ConsumerGroup</option>
+           <option value="HighLvelConsumer">HighLevelConsumer</option>
+       </select>
     </div>
     <div class="form-row">
-        <label for="node-input-consumerTypeConsumerGroup"><i class="icon-tag"></i>ConsumerGroup</label>
-        <input type="radio" name="consumerType" id="node-input-consumerTypeConsumerGroup" placeholder="consumerTypeConsumerGroup">
+        <label for="node-input-fetchMaxBytes"><i class="icon-tag"></i>fetchMaxBytes</label>
+        <input type="text" id="node-input-fetchMaxBytes" placeholder="fetchMaxBytes">
     </div>
       <div class="form-row">
         <label for="node-input-autoCommit"><i class="icon-tag"></i>Auto Commit</label>
