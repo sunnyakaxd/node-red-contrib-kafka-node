@@ -3,6 +3,7 @@
  */
 
  const kafka = require('kafka-node');
+ const kafkaBatchRunner = require('./kafka-batch-runner');
 
  module.exports = function kafkaNodes(RED) {
     /*
@@ -13,11 +14,9 @@
      */
    function kafkaNode(config) {
      RED.nodes.createNode(this, config);
-     const topic = config.topic;
      const clusterZookeeper = config.zkquorum;
-     const debug = (config.debug == 'debug');
+    //  const debug = (config.debug == 'debug');
      const node = this;
-     const kafka = require('kafka-node');
      const HighLevelProducer = kafka.HighLevelProducer;
      const Client = kafka.Client;
      const topics = config.topics;
@@ -31,7 +30,7 @@
          if (topics.indexOf(',') > -1) {
            const topicArry = topics.split(',');
 
-           for (i = 0; i < topicArry.length; i++) {
+           for (let i = 0; i < topicArry.length; i++) {
              payloads.push({ topic: topicArry[i], messages: msg.payload });
            }
          } else {
@@ -48,7 +47,7 @@
      } catch (e) {
        node.error(e);
      }
-     var producer = new HighLevelProducer(client);
+     const producer = new HighLevelProducer(client);
      this.status({
        fill: 'green',
        shape: 'dot',
@@ -70,14 +69,14 @@
 
      const node = this;
      const consumerType = config.consumerType || 'ConsumerGroup';
-     const fetchMaxBytes = config.fetchMaxBytes;
+     const fetchMaxBytes = parseInt(config.fetchMaxBytes, 10);
 
      const HighLevelConsumer = kafka.HighLevelConsumer;
      const Client = kafka.Client;
      let topics = String(config.topics);
      const clusterZookeeper = config.zkquorum;
      const groupId = config.groupId;
-     const debug = true;// (config.debug == 'debug');
+     const debug = (config.debug === 'debug');
      const client = new Client(clusterZookeeper);
      const cgTopics = topics.split(',');
      topics = cgTopics.map(topic => ({
@@ -86,10 +85,10 @@
 
      console.log('fetchMaxBytes = ', fetchMaxBytes);
      console.log('consumerType =', consumerType);
-
+     console.log('debug =', debug);
 
      if (consumerType === 'high-level-consumer') {
-       var options = {
+       const options = {
          groupId,
          autoCommit: config.autoCommit,
          autoCommitMsgCount: 10,
@@ -120,7 +119,7 @@
        }
      } else {
        try {
-         var options = {
+         const options = {
            host: clusterZookeeper,
            zk: {
              sessionTimeout: 10000,
@@ -146,7 +145,6 @@
            fetchMinBytes: 1,
            fetchMaxBytes,
          };
-         const kafkaBatchRunner = require('./kafka-batch-runner');
          kafkaBatchRunner(node, options, cgTopics, {
            debug,
          });

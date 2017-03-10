@@ -57,9 +57,9 @@ Topic(s) = "topic1, topic2, topic3"
             topics: {value:"", required: true},
             groupId:{value:"", required: true},
             consumerType:{value: "ConsumerGroup", required: true},
-            fetchMaxBytes: {value: 1048576, required: true},
-            debug: {value:""},
-            autoCommit:{value:true, required: true}
+            fetchMaxBytes: {value: "1048576", required: true},
+            debug: {value:"debugOff",required: true},
+            autoCommit:{value:false, required: true}
         },
         inputs:0,
         outputs:1,
@@ -87,7 +87,7 @@ Topic(s) = "topic1, topic2, topic3"
         <label for="node-input-consumerType"><i class="icon-tag"></i>Consumer Type</label>
         <select id="node-input-method">
            <option value="ConsumerGroup">ConsumerGroup</option>
-           <option value="HighLvelConsumer">HighLevelConsumer</option>
+           <option value="HighLevelConsumer">HighLevelConsumer</option>
        </select>
     </div>
     <div class="form-row">
@@ -100,7 +100,10 @@ Topic(s) = "topic1, topic2, topic3"
     </div>
     <div class="form-row">
         <label for="node-input-debug"><i class="icon-tag"></i>Debug</label>
-        <input type="checkbox" id="node-input-debug" style="display: inline-block; width: auto; vertical-align: top;" value="debug">
+        <select id="node-input-debug">
+          <option value="debug">Debug</option>
+          <option value="debugOff" selected="selected">No Debug</option>
+        </select>
     </div>
 </script>
 
