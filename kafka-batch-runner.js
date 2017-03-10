@@ -1,24 +1,29 @@
-var async = require('async');
-var kafka = require('kafka-node');
-var ConsumerGroup = kafka.ConsumerGroup;
+const async = require('async');
+const kafka = require('kafka-node');
+
+const ConsumerGroup = kafka.ConsumerGroup;
 function Node(data) {
   this.data = data;
 }
+
+/**
+* Linked list.
+*/
 function LinkedList() {
   this.length = 0;
-    //this.head = undefined;
-    //this.tail = undefined;
-};
-LinkedList.prototype.pop = function(data) {
+    // this.head = undefined;
+    // this.tail = undefined;
+}
+LinkedList.prototype.pop = function pop() {
   if (!this.head) {
-    return;
+    return undefined;
   }
   this.length--;
-  var retVal = this.head.data;
+  const retVal = this.head.data;
   this.head = this.head.next;
   return retVal;
 };
-LinkedList.prototype.add = function(data) {
+LinkedList.prototype.add = function add(data) {
   if (data === undefined) {
     throw new Error('Cannot insert undefined into linked list');
   }
@@ -29,58 +34,53 @@ LinkedList.prototype.add = function(data) {
   }
   this.length++;
 };
+
 function KafkaBatchRunner(node, options, topics, config) {
-  var consumerGroup = this.consumerGroup = new ConsumerGroup(options, topics);
-  var versionDict = {};
-  versionDict.__cur = 0;
-  var running = false;
-  function next(version) {
-    if (versionDict.__cur == version) {
-      versionDict.__cur = (versionDict.__cur + 1) % 10;
+  function debug(...rest) {
+    if (config.debug) {
+      console.log(rest);
     }
   }
-  function run() {
-    if (running) {
-      return;
-    }
-    running = true;
-    var thisRun = versionDict.__cur;
-    next(thisRun);
-    var list = versionDict[thisRun].list;
-//        var cbArray = new Array(list.length)
-    async.times(list.length, function(n, next) {
+  const messageBuffer = new LinkedList();
+  const consumerGroup = new ConsumerGroup(options, topics);
+
+  function run(callback) {
+    // Emit each message in the message buffer.
+    async.timesSeries(messageBuffer.length, (n, next) => {
       node.send({
-        payload: list.pop(),
+        payload: messageBuffer.pop(),
         cb: next,
       });
-    }, function(err) {
+    }, doneProcessing);
+
+    function doneProcessing(err) {
       if (err) {
+        debug('An error has occured while processing a message. Quitting. Error = ', err);
         process.exit(1);
       }
-      delete versionDict[thisRun];
-      config.debug && console.log('Resuming ', consumerGroup + '');
-      consumerGroup.commit(true, function(err, data) {
+      callback();
+    }
+  }
+
+  consumerGroup.on('message', (msg) => {
+    debug('Received message. Adding it to the buffer -', msg);
+    messageBuffer.add(msg);
+  });
+
+  consumerGroup.on('done', () => {
+    debug('Done one fetch request. Pausing the stream.');
+    consumerGroup.pause();
+    run(() => {
+      debug('Done processing one batch. Commiting now.');
+      consumerGroup.commit(true, (err) => {
         if (err) {
-          config.debug && console.log('Commit failed, purging core-svcs');
+          debug('Error occured while commiting a batch. Quitting. Error =', err);
           process.exit(1);
         }
-        config.debug && console.log('Batch commit successfull');
+        debug('Done processing records. Resuming the stream');
+        consumerGroup.resume();
       });
-      consumerGroup.resume();
     });
-  }
-  consumerGroup.on('message', function(msg) {
-    config.debug && console.log('got msg');
-    var myVersion = versionDict.__cur;
-    var curvDict = versionDict[myVersion] = (versionDict[myVersion] || {
-      list: new LinkedList(),
-    });
-    curvDict.list.add(msg);
-    //console.log('calling pause');
-    consumerGroup.pause();
-    //console.log('calling run');
-    process.nextTick(run);
   });
 }
 module.exports = KafkaBatchRunner;
-

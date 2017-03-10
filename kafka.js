@@ -1,7 +1,7 @@
 /**
  * Created by fwang1 on 3/25/15.
  */
-module.exports = function(RED) {
+module.exports = function (RED) {
     /*
      *   Kafka Producer
      *   Parameters:
@@ -10,36 +10,36 @@ module.exports = function(RED) {
      */
   function kafkaNode(config) {
     RED.nodes.createNode(this, config);
-    var topic = config.topic;
-    var clusterZookeeper = config.zkquorum;
-    var debug = (config.debug == 'debug');
-    var node = this;
-    var kafka = require('kafka-node');
-    var HighLevelProducer = kafka.HighLevelProducer;
-    var Client = kafka.Client;
-    var topics = config.topics;
-    var client = new Client(clusterZookeeper);
+    const topic = config.topic;
+    const clusterZookeeper = config.zkquorum;
+    const debug = (config.debug == 'debug');
+    const node = this;
+    const kafka = require('kafka-node');
+    const HighLevelProducer = kafka.HighLevelProducer;
+    const Client = kafka.Client;
+    const topics = config.topics;
+    const client = new Client(clusterZookeeper);
 
     try {
-      this.on('input', function(msg) {
-        var payloads = [];
+      this.on('input', (msg) => {
+        let payloads = [];
 
                 // check if multiple topics
         if (topics.indexOf(',') > -1) {
-          var topicArry = topics.split(',');
+          const topicArry = topics.split(',');
 
           for (i = 0; i < topicArry.length; i++) {
-            payloads.push({topic: topicArry[i], messages: msg.payload});
+            payloads.push({ topic: topicArry[i], messages: msg.payload });
           }
         } else {
-          payloads = [{topic: topics, messages: msg.payload}];
+          payloads = [{ topic: topics, messages: msg.payload }];
         }
 
-        producer.send(payloads, function(err, data) {
+        producer.send(payloads, (err, data) => {
           if (err) {
             node.error(err);
           }
-          node.log('Message Sent: ' + data);
+          node.log(`Message Sent: ${data}`);
         });
       });
     } catch (e) {
@@ -49,7 +49,7 @@ module.exports = function(RED) {
     this.status({
       fill: 'green',
       shape: 'dot',
-      text: 'connected to ' + clusterZookeeper,
+      text: `connected to ${clusterZookeeper}`,
     });
   }
 
@@ -65,22 +65,20 @@ module.exports = function(RED) {
   function kafkaInNode(config) {
     RED.nodes.createNode(this, config);
 
-    var node = this;
-    var highLevelConsumer = false;
-    var kafka = require('kafka-node');
-    var HighLevelConsumer = kafka.HighLevelConsumer;
-    var Client = kafka.Client;
-    var topics = String(config.topics);
-    var clusterZookeeper = config.zkquorum;
-    var groupId = config.groupId;
-    var debug = (config.debug == 'debug');
-    var client = new Client(clusterZookeeper);
-    var cgTopics = topics.split(',');
-    topics = cgTopics.map(function(topic) {
-      return {
-        topic: topic,
-      };
-    });
+    const node = this;
+    const highLevelConsumer = false;
+    const kafka = require('kafka-node');
+    const HighLevelConsumer = kafka.HighLevelConsumer;
+    const Client = kafka.Client;
+    let topics = String(config.topics);
+    const clusterZookeeper = config.zkquorum;
+    const groupId = config.groupId;
+    const debug = true;// (config.debug == 'debug');
+    const client = new Client(clusterZookeeper);
+    const cgTopics = topics.split(',');
+    topics = cgTopics.map(topic => ({
+      topic,
+    }));
 //    return console.log(JSON.stringify(config));
 //        var topicJSONArry = [];
 //        // check if multiple topics
@@ -105,34 +103,33 @@ module.exports = function(RED) {
 
     if (highLevelConsumer) {
       var options = {
-        groupId: groupId,
+        groupId,
         autoCommit: config.autoCommit,
         autoCommitMsgCount: 10,
       };
       try {
-        var consumer = new HighLevelConsumer(client, topics, options);
+        const consumer = new HighLevelConsumer(client, topics, options);
         this.log('Consumer created...');
         this.status({
           fill: 'green',
           shape: 'dot',
-          text: 'connected to ' + clusterZookeeper,
+          text: `connected to ${clusterZookeeper}`,
         });
 
-        consumer.on('message', function(message) {
+        consumer.on('message', (message) => {
           if (debug) {
             console.log(message);
             node.log(message);
           }
-          var msg = {payload: message};
+          const msg = { payload: message };
           node.send(msg);
         });
 
-        consumer.on('error', function(err) {
+        consumer.on('error', (err) => {
           console.error(err);
         });
       } catch (e) {
         node.error(e);
-        return;
       }
     } else {
       try {
@@ -143,7 +140,7 @@ module.exports = function(RED) {
           },   // put client zk settings if you need them (see Client)
           batch: undefined, // put client batch settings if you need them (see Client)
             //  ssl: true, // optional (defaults to false) or tls options hash
-          groupId: groupId,
+          groupId,
           autoCommit: false,
           sessionTimeout: 15000,
               // An array of partition assignment protocols ordered by preference.
@@ -157,15 +154,16 @@ module.exports = function(RED) {
               // how to recover from OutOfRangeOffset error (where save offset is past server retention) accepts same value as fromOffset
           outOfRangeOffset: 'earliest', // default
           migrateHLC: false,    // for details please see Migration section below
-          migrateRolling: true,
+          fetchMaxWaitMs: 100,
+          fetchMinBytes: 1,
+          fetchMaxBytes: 100,
         };
-        var kafkaBatchRunner = require('./kafka-batch-runner');
+        const kafkaBatchRunner = require('./kafka-batch-runner');
         kafkaBatchRunner(node, options, cgTopics, {
-          debug: debug,
+          debug,
         });
       } catch (e) {
         node.error(e);
-        return;
       }
     }
   }

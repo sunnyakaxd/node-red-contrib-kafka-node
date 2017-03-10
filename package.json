@@ -62,10 +62,17 @@
     "url": "https://github.com/fwang7/node-red-contrib-kafka-node/issues"
   },
   "dependencies": {
+    "async": "^2.1.5",
     "kafka-node": ">=0.3.2"
   },
   "description": "Node-RED nodes of HighLevel Kafka Producer and Consumer",
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.0"
+  },
   "gitHead": "95782ee4a651bbadd1e1ee2f12f4ccc1f448bee3",
   "homepage": "https://github.com/fwang7/node-red-contrib-kafka-node#readme",
   "keywords": [
