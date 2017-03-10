@@ -139,6 +139,7 @@
            fromOffset: 'earliest', // default
 
               // how to recover from OutOfRangeOffset error (where save offset is past server retention) accepts same value as fromOffset
+
            outOfRangeOffset: 'earliest', // default
            migrateHLC: false,    // for details please see Migration section below
            fetchMaxWaitMs: 100,
