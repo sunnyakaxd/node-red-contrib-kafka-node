@@ -90,6 +90,9 @@
            return node.error(err);
          }
          debug(`Kafka success Response ${JSON.stringify(data)}`);
+         node.send({
+           payload: true,
+         });
        });
      }
 
@@ -244,6 +247,9 @@
      this.on('input', (msg) => {
        try {
          if (!node.balancer) {
+           node.send({
+             payload: false,
+           });
            return node.error('Producer Not Ready');
          }
          node.balancer(msg);
