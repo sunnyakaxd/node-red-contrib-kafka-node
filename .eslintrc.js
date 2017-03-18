@@ -1,5 +1,5 @@
 module.exports = {
-    "extends": "airbnb",
+    "extends": "airbnb-base",
     "installedESLint": true,
     "plugins": [
         "react",
@@ -7,7 +7,7 @@ module.exports = {
         "import"
     ],
     "rules":{
-      "no-console": 0,
+      "consistent-return": 0,
       "no-use-before-define": 0,
       "no-plusplus": 0,
       "no-multi-assign": 0,

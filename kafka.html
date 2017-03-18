@@ -5,7 +5,9 @@
         defaults: {
             zkquorum:{value:"", required: true},
             topics: {value:"", required: true},
-            debug: {value:""}
+            balance: {value:"none"},
+            partitions: {value:""},
+            debug: {value:false}
         },
         inputs:1,
         outputs:0,
@@ -22,15 +24,26 @@
         <label for="node-input-zkquorum"><i class="icon-tag"></i>ZK Quorum</label>
         <input type="text" id="node-input-zkquorum" placeholder="ZK Quorum">
     </div>
-
     <div class="form-row">
         <label for="node-input-topics"><i class="icon-tag"></i>Topic(s)</label>
         <input type="text" id="node-input-topics" placeholder="Topics">
     </div>
-
+    <div class="form-row">
+        <label for="node-input-balance"><i class="icon-tag"></i>Partition Balancing</label>
+        <select id="node-input-balance" placeholder="hashing">
+            <option value="none">None(partition = 0)</option>
+            <option value="actual">Partition=msg.partition</option>
+            <option value="id">Consistent Hashing on msg.hashId</option>
+            <option value="rr">Round Robin</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-partitions"><i class="icon-tag"></i>Total Partitions</label>
+        <input type="text" id="node-input-partitions" placeholder="Partitions">
+    </div>
     <div class="form-row">
         <label for="node-input-debug"><i class="icon-tag"></i>Debug</label>
-        <input type="checkbox" id="node-input-debug" style="display: inline-block; width: auto; vertical-align: top;" value="debug">
+        <input type="checkbox" id="node-input-debug" style="display: inline-block; width: auto; vertical-align: top;">
     </div>
 
 </script>
@@ -40,6 +53,7 @@
     <p><b>ZooKeeper Quorum</b>  <i>The ZooKeeper quorum of Kafka cluster.</i></p>
     <p><b>Topic(s)</b> <i>The topic(s) of message to produce.</i></p>
     <p>Check <b>Debug</b> <i> to print extra information to console.</i></p>
+    <p>Returns <b>true</b> or <b>false</b> as msg.payload for message sent or not</p>
     <pre>
 Example:
 Topic(s) = "topic"
