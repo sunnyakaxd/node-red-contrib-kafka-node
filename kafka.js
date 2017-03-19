@@ -15,9 +15,36 @@
      */
    function kafkaNode(config) {
      RED.nodes.createNode(this, config);
+     const node = this;
+     const disabled = config.disabled;
+     if (disabled) {
+       node.status({
+         fill: 'red',
+         shape: 'dot',
+         text: 'Disabled',
+       });
+       node.on('input', (msg) => {
+         node.send({
+           payload: {
+             sent: false,
+             error: 'Node disabled',
+             msg,
+           },
+         });
+       });
+       return;
+     }
+     const retryTimeouts = new Set();
+     const oldRetryTimeoutsAdd = retryTimeouts.add;
+     retryTimeouts.add = (fn, timeout) => {
+       const thisTimeOut = setTimeout(() => {
+         retryTimeouts.delete(thisTimeOut);
+         fn();
+       }, timeout);
+       oldRetryTimeoutsAdd.call(retryTimeouts, thisTimeOut);
+     };
      const clusterZookeeper = config.zkquorum;
     //  const debug = (config.debug == 'debug');
-     const node = this;
      const HighLevelProducer = kafka.HighLevelProducer;
      const Client = kafka.Client;
      const topics = config.topics;
@@ -91,7 +118,10 @@
          }
          debug(`Kafka success Response ${JSON.stringify(data)}`);
          node.send({
-           payload: true,
+           payload: {
+             sent: true,
+             msg,
+           },
          });
        });
      }
@@ -140,15 +170,15 @@
            clientWrapper.client.loadMetadataForTopics(topicArray, function(err, metadataResponse){//eslint-disable-line
              if (err) {
                // retry if err
-               node.error(err);
-               debug('Retrying metadata fetch');
+              //  node.error(err);
+               debug(`Retrying metadata fetch, retry: ${thisCtx.retries}`);
                if (topicArray.some(topic =>
                   (Object.keys(topicMetadata).indexOf(topic) === -1))) {
                  if (thisCtx.retries % 10 === 0) {
                    clientWrapper.client.close((...rest) => {
                      debug('closed previous connention ', JSON.stringify(rest));
                      clientWrapper.open = false;
-                     return setTimeout(() => {
+                     retryTimeouts.add(() => {
                        clientWrapper.client = new Client(clusterZookeeper);
                        clientWrapper.producer = new HighLevelProducer(clientWrapper.client);
                        clientWrapper.open = true;
@@ -156,7 +186,8 @@
                      }, 30000);
                    });
                  }
-                 return setTimeout(loadMetadataForTopics, 2000);
+                 retryTimeouts.add(loadMetadataForTopics, 2000);
+                 return;
                }
              }
              // console.log('metadata is: ', JSON.stringify(metadataResponse, null, 4));
@@ -260,6 +291,7 @@
 
      node.on('close', () => {
        clientWrapper.client.close();
+       [...retryTimeouts].forEach(tid => clearTimeout(tid));
      });
    }
 

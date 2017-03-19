@@ -3,7 +3,8 @@
         category: 'output',
         color: '#FFFFFF',
         defaults: {
-            zkquorum:{value:"", required: true},
+            disabled: {value:false},
+            zkquorum: {value:"", required: true},
             topics: {value:"", required: true},
             balance: {value:"none"},
             partitions: {value:""},
@@ -20,6 +21,10 @@
 </script>
 
 <script type="text/x-red" data-template-name="kafka">
+    <div class="form-row">
+        <label for="node-input-disabled"><i class="icon-tag"></i>Is Disabled</label>
+        <input type="checkbox" id="node-input-disabled" style="display: inline-block; width: auto; vertical-align: top;">
+    </div>
     <div class="form-row">
         <label for="node-input-zkquorum"><i class="icon-tag"></i>ZK Quorum</label>
         <input type="text" id="node-input-zkquorum" placeholder="ZK Quorum">
@@ -67,6 +72,7 @@ Topic(s) = "topic1, topic2, topic3"
         category: 'input',
         color: '#FFFFFF',
         defaults: {
+            enabled:{value:true},
             zkquorum:{value:"", required: true},
             topics: {value:"", required: true},
             groupId:{value:"", required: true},
