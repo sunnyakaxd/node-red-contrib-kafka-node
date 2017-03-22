@@ -24,6 +24,7 @@
          text: 'Disabled',
        });
        node.on('input', (msg) => {
+        //  console.log('input');
          node.send({
            payload: {
              sent: false,
@@ -82,7 +83,7 @@
      // if totalPartitions are provided, we don't need totalPartitions from metadata
      // if balance is none or actual, no need to maintain totalPartitions at all
      const metadataFetchNotRequired = totalPartitions || balance === 'none' || balance === 'actual';
-    //  console.log(`${JSON.stringify(totalPartitions)}.length || ${balance} === none || ${balance} === actual`);
+    //  console.log(`${JSON.stringify(totalPartitions)}.length || ${balance} === none || ${balance} === actual :==== ${metadataFetchNotRequired}`);
 
      // balancer is a function which will balance the partitions for messages.
      // Is constructed based on balance type
@@ -96,6 +97,12 @@
      // - RoundRobin previous partition number, for each topic
      // - ConsistentHash object for each topic
      const topicDict = {};
+
+     node.on('close', () => {
+       clientWrapper.client.close();
+       clientWrapper.open = false;
+       [...retryTimeouts].forEach(tid => clearTimeout(tid));
+     });
 
      /**
      * @param partitionBuilder - function which creates partition number
@@ -117,6 +124,7 @@
            return node.error(err);
          }
          debug(`Kafka success Response ${JSON.stringify(data)}`);
+        //  console.log('success response');
          node.send({
            payload: {
              sent: true,
@@ -142,7 +150,7 @@
              node.status({
                fill: 'green',
                shape: 'dot',
-               text: 'metadata not required',
+               text: 'metadata loaded from config',
              });
              return callback();
            }
@@ -151,7 +159,7 @@
              shape: 'dot',
              text: 'metadata not required',
            });
-           callback();
+           return callback();
          }
 
          // start fetch from zk server
@@ -167,13 +175,16 @@
            }
            this.retries++;
            const thisCtx = this;
-           clientWrapper.client.loadMetadataForTopics(topicArray, function(err, metadataResponse){//eslint-disable-line
+           debug(`Trying metadata fetch, try no: ${thisCtx.retries}`);
+           clientWrapper.client.loadMetadataForTopics(topicArray, (err, metadataResponse) => { // eslint-disable-line func-names
+             // debug(metadataResponse);
              if (err) {
                // retry if err
-              //  node.error(err);
-               debug(`Retrying metadata fetch, retry: ${thisCtx.retries}`);
-               if (topicArray.some(topic =>
-                  (Object.keys(topicMetadata).indexOf(topic) === -1))) {
+               debug(`received Error, will retry, error: ${JSON.stringify(err, null, 2)}`);
+               const topicsLeft = topicArray.filter(topic =>
+                  (Object.keys(topicMetadata).indexOf(topic) === -1));
+               debug(`topics left are ${JSON.stringify(topicsLeft)}`);
+               if (topicsLeft.length) {
                  if (thisCtx.retries % 10 === 0) {
                    clientWrapper.client.close((...rest) => {
                      debug('closed previous connention ', JSON.stringify(rest));
@@ -193,38 +204,48 @@
              // console.log('metadata is: ', JSON.stringify(metadataResponse, null, 4));
              try {
                const metadata = metadataResponse[1].metadata;
+               const localTopicMetaData = {};
                Object.keys(metadata).forEach((topicKey) => {
                  const topicMetadataResponse = metadata[topicKey];
                  Object.keys(topicMetadataResponse).forEach((key) => {
                    const topic = topicMetadataResponse[key].topic;
-                   const topicData = topicMetadata[topic] = topicMetadata[topic] || { partitions: 0 };
+                   const topicData = localTopicMetaData[topic] = localTopicMetaData[topic] || { partitions: 0 };
                    topicData.partitions++;
                  });
                });
-               node.status({
-                 fill: 'green',
-                 shape: 'dot',
-                 text: `fetched metadata for ${Object.keys(topicMetadata).join(', ')}`,
-               });
-               callback();
-               debug('metadata recieved', JSON.stringify(topicMetadata, null, 2));
+               if (Object.keys(localTopicMetaData).length) {
+                 Object.keys(localTopicMetaData).forEach((topic) => {
+                   topicMetadata[topic] = localTopicMetaData[topic];
+                 });
+                 debug('metadata recieved', JSON.stringify(metadataResponse, null, 2));
+                 node.status({
+                   fill: 'green',
+                   shape: 'dot',
+                   text: `fetched metadata for ${Object.keys(topicMetadata).join(', ')}`,
+                 });
+                 callback(Object.keys(topicMetadata));
+                 debug('metadata built', JSON.stringify(topicMetadata, null, 2));
+               } else if (metadataResponse[1].error) {
+                 node.error(metadataResponse[1].error);
+               }
              } catch (e) {
+               debug('metadata received with error: ', JSON.stringify(metadataResponse, null, 2));
                return node.error(e);
              }
            // node.send({ payload: 'blah blah' });
            });
-         }.bind({ retries: 0 });
+         }.bind({ retries: [] });
          loadMetadataForTopics();
        } catch (e) {
          node.error(e);
        }
      }
-     fetchMetadata(() => {
+     fetchMetadata((topicsAdded) => {
        try {
          debug('balance type is %s', balance);
          switch (balance) {
            case 'id':
-             topicArray.forEach((topic) => {
+             topicsAdded.forEach((topic) => {
                const hr = (topicDict[topic] = {
                  hr: new ConsistentHash(),
                }).hr;
@@ -250,7 +271,7 @@
              };
              break;
            case 'rr':
-             topicArray.forEach((topic) => {
+             topicsAdded.forEach((topic) => {
                const partitionCount = topicMetadata[topic].partitions;
                topicDict[topic] = {
                  value: -1,
@@ -278,6 +299,7 @@
      this.on('input', (msg) => {
        try {
          if (!node.balancer) {
+          //  console.log('no balancer');
            node.send({
              payload: false,
            });
@@ -287,11 +309,6 @@
        } catch (e) {
          node.error(e);
        }
-     });
-
-     node.on('close', () => {
-       clientWrapper.client.close();
-       [...retryTimeouts].forEach(tid => clearTimeout(tid));
      });
    }
 
@@ -348,6 +365,7 @@
              node.log(message);
            }
            const msg = { payload: message };
+          //  console.log('message');
            node.send(msg);
          });
 
